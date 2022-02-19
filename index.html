@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang=en>
+ <head>
+  <meta charset=utf-8>
+  <title>Search professions</title>
+ </head>
+ <style type="text/css">
+ul {
+ list-style-type: none;
+ margin-bottom: 0.5em;
+}
+.inlist {
+ list-style: inside;
+ background: #f0ffffff;
+}
+ </style>
+ <script>
+  function isEmpty(ob){
+     for(var i in ob){ return false;}
+     return true;
+    }
+  function subFunction() {
+     var xhttp = new XMLHttpRequest();
+     xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           var list = document.getElementById("list");
+           var obj = JSON.parse(this.responseText);
+           while (list.firstChild) { list.firstChild.remove() }
+           if (isEmpty(obj)) {
+              var elem = document.createElement("li");
+              elem.textContent = "No results :(";
+              list.appendChild(elem);
+              return;
+             }
+           var keys = Object.keys(obj);
+           keys.sort();
+           for (var j = 0; j < keys.length; ++j) {
+              var elem = document.createElement("li");
+              elem.className = "outlist";
+              elem.textContent = keys[j];
+              list.appendChild(elem);
+              var sublist = document.createElement("ul");
+              elem.appendChild(sublist);
+              obj[keys[j]].sort(function(a,b) { return a[0] > b[0];});
+              for (var i = 0; i < obj[keys[j]].length; ++i) {
+                 var elepl = document.createElement("li");
+                 elepl.className = "inlist";
+                 elepl.textContent = obj[keys[j]][i][0];
+                 if (obj[keys[j]][i][1]) {
+                    elepl.textContent += " - " + obj[keys[j]][i][1];
+                   }
+                 sublist.appendChild(elepl);
+                }
+             }
+          }
+       }
+     var skill = document.getElementById("skill").value;
+     var prof = document.getElementById("prof").value;
+
+     xhttp.open("POST", "/cgi-bin/proffut/searchprofs.py", true);
+     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+     xhttp.send("skill="+skill+"&prof="+prof);
+    }
+ </script>
+ <body>
+  <form action="javascript:void(0)">
+   <label for="skill">Mitäs laitetaan?</label>
+   <input type="text" name="skill" id="skill" autofocus></input>
+   <label for="prof">Profession:</label>
+   <select name="prof" id="prof">
+    <option selected="selected" value="Any">Any</option>
+    <option value="Alchemy">Alchemy</option>
+    <option value="Blacksmithing">Blacksmithing</option>
+    <option value="Cooking">Cooking</option>
+    <option value="Enchanting">Enchanting</option>
+    <option value="Engineering">Engineering</option>
+    <option value="Jewelcrafting">Jewelcrafting</option>
+    <option value="Leatherworking">Leatherworking</option>
+    <option value="Tailoring">Tailoring</option>
+   </select>
+   <input type="submit" onClick="subFunction()">
+  </form>
+  <ul id="list">
+  </ul>
+  <p>
+  <a href="ohjeet.html">Ohjeet miten saat omat proffut näkyviin</a>
+  </p>
+ </body>
+</html>
+
+
