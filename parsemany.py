@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 import cgi
 print("Content-Type: text/html;charset=UTF-8\n\n")
-import cgitb
-cgitb.enable()
 import mariadb
 import html
+import configparser
 
 config = configparser.ConfigParser()
 if not os.path.exists('db.ini'):
