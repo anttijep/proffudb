@@ -3,6 +3,7 @@ import cgi
 import mariadb
 import json
 import configparser
+import os
 
 def response(js):
     out = json.dumps(js)
@@ -46,13 +47,15 @@ search = '%' + form["skill"].value.title().replace("*","%") + '%'
 
 
 qry = """
-SELECT s.SkillName, c.CharName, c.Info FROM KnownSkills k, Skills s
+SELECT s.SkillName, c.CharName, c.Info, s.spellid
+FROM KnownSkills k, Skills s
 JOIN Characters c ON charid = c.charid
 WHERE k.skillid=s.id AND SkillName LIKE ? AND c.charid = k.charid
 LIMIT 50
 """
 qrywithprof = """
-SELECT s.SkillName, c.CharName, c.Info FROM KnownSkills k, Skills s
+SELECT s.SkillName, c.CharName, c.Info, s.spellid
+FROM KnownSkills k, Skills s
 JOIN Characters c ON charid = c.charid
 WHERE k.skillid=s.id AND SkillName LIKE ? AND c.charid = k.charid AND s.Profession=?
 LIMIT 50
@@ -70,11 +73,14 @@ try:
     else:
         result = getresult(qrywithprof, [search, prof])
     out = {}
+    outids = {}
     for res in result:
         if res[0] in out:
-            out[res[0]].append([res[1], res[2]])
+            out[res[0]]["characters"].append([res[1], res[2]])
         else:
-            out[res[0]] = [[res[1], res[2]]]
+            out[res[0]] = {}
+            out[res[0]]["characters"] = [[res[1], res[2]]]
+            out[res[0]]["spellid"] = res[3]
     response(out)
 except Exception as ex:
     pass
