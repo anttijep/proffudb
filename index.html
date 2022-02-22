@@ -14,11 +14,15 @@ ul {
  background: #f0ffffff;
 }
  </style>
+ <script src="https://wow.zamimg.com/widgets/power.js"></script>
  <script>
   function isEmpty(ob){
      for(var i in ob){ return false;}
      return true;
     }
+  function fixstring(str) {
+		   return str.replace("&#x27;", "'");
+	   }
   function subFunction() {
      var xhttp = new XMLHttpRequest();
      xhttp.onreadystatechange = function() {
@@ -37,17 +41,27 @@ ul {
            for (var j = 0; j < keys.length; ++j) {
               var elem = document.createElement("li");
               elem.className = "outlist";
-              elem.textContent = keys[j];
               list.appendChild(elem);
+			  if (obj[keys[j]]["spellid"]) {
+				  var link = document.createElement("a");
+				  link.setAttribute("href", "https://tbc.wowhead.com/spell=" + obj[keys[j]]["spellid"]);
+			      link.textContent = fixstring(keys[j]);
+				  elem.appendChild(link);
+			   }
+			  else {
+				  elem.textContent = fixstring(keys[j]);
+			  }
               var sublist = document.createElement("ul");
               elem.appendChild(sublist);
-              obj[keys[j]].sort(function(a,b) { return a[0] > b[0];});
-              for (var i = 0; i < obj[keys[j]].length; ++i) {
+
+			  var charlist = obj[keys[j]]["characters"];
+              charlist.sort(function(a,b) { return a[0] > b[0];});
+              for (var i = 0; i < charlist.length; ++i) {
                  var elepl = document.createElement("li");
                  elepl.className = "inlist";
-                 elepl.textContent = obj[keys[j]][i][0];
-                 if (obj[keys[j]][i][1]) {
-                    elepl.textContent += " - " + obj[keys[j]][i][1];
+                 elepl.textContent = charlist[i][0];
+                 if (charlist[i][1]) {
+                    elepl.textContent += " - " + charlist[i][1];
                    }
                  sublist.appendChild(elepl);
                 }
