@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-import cgi
-print("Content-Type: text/plain;charset=UTF-8\n\n")
 import mariadb
 import html
 import configparser
