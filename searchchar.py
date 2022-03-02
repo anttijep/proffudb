@@ -38,49 +38,41 @@ def getresult(query, bindings = []):
     return results
 
 form = cgi.FieldStorage()
-if "skill" not in form:
+if "name" not in form:
     response({})
     exit(0)
 
+name = form["name"].value
 
-search = '%' + form["skill"].value.title().replace("*","%") + '%'
-
+charinfo = """
+SELECT CharName, Info
+FROM Characters
+WHERE CharName=?
+"""
 
 qry = """
-SELECT s.SkillName, c.CharName, c.Info, s.spellid
+SELECT s.SkillName, s.Profession
 FROM KnownSkills k, Skills s
 JOIN Characters c ON charid = c.charid
-WHERE k.skillid=s.id AND SkillName LIKE ? AND c.charid = k.charid
-LIMIT 100
-"""
-qrywithprof = """
-SELECT s.SkillName, c.CharName, c.Info, s.spellid
-FROM KnownSkills k, Skills s
-JOIN Characters c ON charid = c.charid
-WHERE k.skillid=s.id AND SkillName LIKE ? AND c.charid = k.charid AND s.Profession=?
-LIMIT 100
+WHERE k.skillid=s.id AND c.CharName=? AND c.charid = k.charid
+ORDER BY s.SkillName ASC
 """
 
-prof = ""
-if "prof" in form:
-    prof = form["prof"].value.title().strip()
-else:
-    prof = "Any"
 
 try:
-    if prof == "" or prof == "Any":
-        result = getresult(qry, [search])
-    else:
-        result = getresult(qrywithprof, [search, prof])
     out = {}
-    outids = {}
+    result = getresult(charinfo, [name])
+    if len(result) == 0:
+        response({})
+        exit(0)
+    out["name"] = result[0][0]
+    out["info"] = result[0][1]
+    result = getresult(qry, [name])
     for res in result:
-        if res[0] in out:
-            out[res[0]]["characters"].append([res[1], res[2]])
+        if res[1] in out:
+            out[res[1]].append(res[0])
         else:
-            out[res[0]] = {}
-            out[res[0]]["characters"] = [[res[1], res[2]]]
-            out[res[0]]["spellid"] = res[3]
+            out[res[1]] = [res[0]]
     response(out)
 except Exception as ex:
     pass

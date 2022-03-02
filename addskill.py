@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import cgi
-print("Content-Type: text/plain;charset=UTF-8\n\n")
+print("Content-Type: text/plain;charset=UTF-8\n")
 import mariadb
 import html
 import configparser
@@ -19,12 +19,13 @@ if not os.path.exists('db.ini'):
 form = cgi.FieldStorage()
 
 
-if not "skill" in form or not "name" in form:
+if not "skill" in form or not "name" or not "prof" in form:
     print("invalid input")
-    exit()
+    exit(1)
 
-p = html.escape(form["name"].value.title())
-s = html.escape(form["skill"].value.title())
+name = html.escape(form["name"].value.title())
+skill = html.escape(form["skill"].value.title())
+prof = html.escape(form["prof"].value.title())
 
 
 config.read('db.ini')
@@ -40,21 +41,21 @@ cur = conn.cursor()
 query = """
 INSERT INTO KnownSkills (charid, skillid)
 VALUES (
-SELECT charid
+(SELECT charid
 FROM Characters
 WHERE CharName=?)
 ,(
 SELECT id
 FROM Skills s
-WHERE SkillName=?)
+WHERE SkillName=? AND Profession=?)
 )
 """
 
 try:
-    cur.execute(query, [p, s])
+    cur.execute(query, [name, skill, prof])
     conn.commit()
-    print("success")
-except:
+    print("ADDED: ", name,  " ", skill, " ", prof)
+except Exception as ex:
     print("something went wrong...")
 conn.close()
 
