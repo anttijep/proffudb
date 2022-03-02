@@ -34,10 +34,12 @@ ul {
               var elem = document.createElement("li");
               elem.textContent = "No results :(";
               list.appendChild(elem);
+			  document.getElementById("limit").textContent = "Results: 0/100";
               return;
              }
            var keys = Object.keys(obj);
            keys.sort();
+		   var resultcount = 0;
            for (var j = 0; j < keys.length; ++j) {
               var elem = document.createElement("li");
               elem.className = "outlist";
@@ -64,8 +66,11 @@ ul {
                     elepl.textContent += " - " + charlist[i][1];
                    }
                  sublist.appendChild(elepl);
+				 ++resultcount;
                 }
              }
+			
+			document.getElementById("limit").textContent = "Results: " + resultcount + "/100";
           }
        }
      var skill = document.getElementById("skill").value;
@@ -93,6 +98,7 @@ ul {
     <option value="Tailoring">Tailoring</option>
    </select>
    <input type="submit" onClick="subFunction()">
+   <p id="limit"></p>
   </form>
   <ul id="list">
   </ul>
